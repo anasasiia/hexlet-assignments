@@ -28,7 +28,6 @@ public interface UserRepository extends
         bindings.bind(user.lastName).first(StringExpression::containsIgnoreCase);
         bindings.bind(user.email).first(StringExpression::containsIgnoreCase);
         bindings.bind(user.profession).first(StringExpression::containsIgnoreCase);
-        bindings.bind(user.gender).first(StringExpression::eq);
         // END
     }
 

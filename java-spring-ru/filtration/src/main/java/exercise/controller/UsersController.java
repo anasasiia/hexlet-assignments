@@ -25,22 +25,27 @@ public class UsersController {
 
     // BEGIN
 
+//    @GetMapping("")
+//    public Iterable<User> getUsersByParams(@RequestParam(required = false) String firstName,
+//                                       @RequestParam(required = false) String lastName) {
+//
+//        if (lastName == null && firstName == null) {
+//            return this.userRepository.findAll();
+//        }
+//
+//        if (lastName == null) {
+//            return this.userRepository.findAll(QUser.user.firstName.containsIgnoreCase(firstName));
+//        }
+//        if (firstName == null) {
+//            return this.userRepository.findAll(QUser.user.lastName.containsIgnoreCase(lastName));
+//        }
+//        return this.userRepository.findAll(QUser.user.firstName.containsIgnoreCase(firstName)
+//                .and(QUser.user.lastName.containsIgnoreCase(lastName)));
+//    }
+
     @GetMapping("")
-    public Iterable<User> getUsersByParams(@RequestParam(required = false) String firstName,
-                                       @RequestParam(required = false) String lastName) {
-
-        if (lastName == null && firstName == null) {
-            return this.userRepository.findAll();
-        }
-
-        if (lastName == null) {
-            return this.userRepository.findAll(QUser.user.firstName.containsIgnoreCase(firstName));
-        }
-        if (firstName == null) {
-            return this.userRepository.findAll(QUser.user.lastName.containsIgnoreCase(lastName));
-        }
-        return this.userRepository.findAll(QUser.user.firstName.containsIgnoreCase(firstName)
-                .and(QUser.user.lastName.containsIgnoreCase(lastName)));
+    public Iterable<User> getUsers(@QuerydslPredicate(root = User.class) Predicate predicate) {
+        return this.userRepository.findAll(predicate);
     }
    // END
 }
