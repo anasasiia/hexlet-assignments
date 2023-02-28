@@ -25,10 +25,14 @@ public class WeatherService {
     }
 
     // BEGIN
-    public Map<String, String> getWeatherFromInternet(String cityName) throws JsonProcessingException {
+    public Map<String, String> getWeatherFromInternet(String cityName) {
         String response = client.get("http://weather/api/v2/cities/" + cityName);
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(response, Map.class);
+        try {
+            return mapper.readValue(response, Map.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
     // END
 }

@@ -35,24 +35,18 @@ public class CityController {
     }
 
     @GetMapping(path = "/search")
-    public Iterable<Map<String, String>> getCities(@RequestParam(value = "name", required = false) String prefix) {
-        Iterable<City> cities;
-        if (prefix == null) {
-            cities = this.cityRepository.findAllByOrderByNameAsc();
+    public Iterable<Map<String, String>> getCities(@RequestParam(required = false) String name) {
+        Iterable<City> filteredCities;
+        if (name == null) {
+            filteredCities = this.cityRepository.findAllByOrderByNameAsc();
         } else {
-            cities = this.cityRepository.findByNameStartingWithIgnoreCase(prefix);
+            filteredCities = this.cityRepository.findByNameStartingWithIgnoreCase(name);
         }
         List<Map<String, String>> citiesList = new ArrayList<>();
-        cities.forEach(city -> {
-            try {
-                Map<String, String> fullInformationAboutCity = weatherService.getWeatherFromInternet(city.getName());
-                Map<String, String> nameAndTemperature = new HashMap<>();
-                nameAndTemperature.put("temperature", fullInformationAboutCity.get("temperature"));
-                nameAndTemperature.put("name", fullInformationAboutCity.get("name"));
-                citiesList.add(nameAndTemperature);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+        filteredCities.forEach(city -> {
+            Map<String, String> fullInformationAboutCity = weatherService.getWeatherFromInternet(city.getName());
+            citiesList.add(Map.of("temperature", fullInformationAboutCity.get("temperature"),
+                    "name", fullInformationAboutCity.get("name")));
         });
         return citiesList;
     }
