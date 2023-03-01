@@ -34,8 +34,8 @@ public class CustomBeanPostProcessor implements BeanPostProcessor {
         Class beanClass = beans.get(beanName);
         if (beanClass != null) {
             return Proxy.newProxyInstance(
-                    CalculatorImpl.class.getClassLoader(),
-                    CalculatorImpl.class.getInterfaces(),
+                    beanClass.getClassLoader(),
+                    beanClass.getInterfaces(),
                     (proxy, method, args) -> {
                         String message = String.format(
                                 "Was called method: %s() with arguments: %s",
