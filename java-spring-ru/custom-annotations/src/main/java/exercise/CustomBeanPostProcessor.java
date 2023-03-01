@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 // BEGIN
 @Component
-public class CustomBeanPostProcessor implements BeanPostProcessor{
+public class CustomBeanPostProcessor implements BeanPostProcessor {
     Map<String, Class> beans = new HashMap<>();
     Map<String, String> levelLogs = new HashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(Object.class);
