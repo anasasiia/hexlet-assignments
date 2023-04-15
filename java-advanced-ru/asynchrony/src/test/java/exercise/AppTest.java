@@ -46,9 +46,9 @@ class AppTest {
     // BEGIN
     @Test
     void testGetDirectorySize() throws Exception {
-        CompletableFuture<Long> result = App.getDirectorySize("src/main/resources");
+        CompletableFuture<Long> result = App.getDirectorySize("src/test/resources/dir/");
 
-        assertThat(result.get()).isGreaterThan(0);
+        assertThat(result.get()).isEqualTo(26);
     }
     // END
 }

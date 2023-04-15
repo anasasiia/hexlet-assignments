@@ -2,10 +2,7 @@ package exercise;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -14,89 +11,67 @@ import java.util.stream.Stream;
 class App {
 
     // BEGIN
+    private static Path getFullPath(String filepath) {
+        return Paths.get(filepath).toAbsolutePath().normalize();
+    }
+
     public static CompletableFuture<String> unionFiles(String file1, String file2, String file3)
                                                                 throws ExecutionException, InterruptedException {
 
         CompletableFuture<String> futureFile1 = CompletableFuture.supplyAsync(() -> {
-            Path filepath1 = Paths.get(file1);
-            if (!Files.exists(filepath1)) {
-                try {
-                    throw new NoSuchFileException(file1);
-                } catch (NoSuchFileException e) {
-                    throw new RuntimeException(e);
-                }
-            }
             String text = "";
             try {
-                text = Files.lines(filepath1).collect(Collectors.joining(" "));
-            } catch (IOException e) {
+                text = Files.readString(getFullPath(file1));
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
             return text;
-        }).exceptionally(ex -> {
-            System.out.println("We have an exception" + ex.getMessage());
-            return null;
         });
-
-        futureFile1.get();
 
         CompletableFuture<String> futureFile2 = CompletableFuture.supplyAsync(() -> {
-            Path filepath2 = Paths.get(file2);
-            if (!Files.exists(filepath2)) {
-                try {
-                    throw new NoSuchFileException(file2);
-                } catch (NoSuchFileException e) {
-                    throw new RuntimeException(e);
-                }
-            }
             String text = "";
             try {
-                text = Files.lines(filepath2).collect(Collectors.joining(" "));
-            } catch (IOException e) {
+                text = Files.readString(getFullPath(file2));
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
             return text;
-        }).exceptionally(ex -> {
-            System.out.println("We have an exception" + ex.getMessage());
-            return null;
         });
 
-        futureFile2.get();
-
         return futureFile1.thenCombine(futureFile2, (textFile1, textFile2) -> {
-            Path filepath3 = Paths.get(file3);
-            String allText = textFile1 + " " + textFile2;
-            if (!Files.exists(filepath3)) {
-                File file = new File(file3);
-            }
+            String content = textFile1 + textFile2;
+
             try {
-                Files.write(filepath3, allText.getBytes());
-            } catch (IOException e) {
+                Files.writeString(getFullPath(file3), content, StandardOpenOption.CREATE);
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            return allText;
+            return content;
+        }).exceptionally(ex -> {
+            System.out.println("We have an exception " + ex.getMessage());
+            return "Unknown";
         });
     }
 
 
     public static CompletableFuture<Long> getDirectorySize(String path) {
         return CompletableFuture.supplyAsync(() -> {
-            Path dirPath = Paths.get(path);
             long size = 0;
 
-            try (Stream<Path> walk = Files.walk(dirPath)) {
-                size = walk.filter(Files::isRegularFile)
+            try {
+                size = Files.walk(getFullPath(path), 1)
+                        .filter(Files::isRegularFile)
                         .mapToLong(file -> {
                             try {
                                 return Files.size(file);
-                            } catch (IOException e) {
+                            } catch (Exception e) {
                                 System.out.printf("Failed to get size of %s", file);
                                 return 0;
                             }
                         })
                         .sum();
-            } catch (IOException e) {
-                System.out.printf("IO errors %s", e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
             return size;
         });
