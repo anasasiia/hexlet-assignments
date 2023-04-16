@@ -76,7 +76,7 @@ public class AppTest {
         assertThat(responsePost.getStatus()).isEqualTo(200);
 
         MockHttpServletResponse response = mockMvc
-                .perform(get("/people/4"))
+                .perform(get("/people/5"))
                 .andReturn()
                 .getResponse();
 
